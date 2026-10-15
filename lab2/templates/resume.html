@@ -1,0 +1,72 @@
+{% extends "base.html" %} {% block content %}
+<h1 class="page-title mb-4">{{ title }}</h1>
+
+<section id="about" class="resume-section">
+    <h2>Про себе</h2>
+    <div class="row align-items-center">
+        <div class="col-md-3 text-center mb-3 mb-md-0">
+            <img
+                src="{{ url_for('static', filename='images/logo.png') }}"
+                alt="Фото"
+                class="img-fluid rounded-circle photo"
+            />
+        </div>
+        <div class="col-md-9">
+            <p>
+                Привіт! Мене звати <strong>Саша</strong>. Я навчаюсь на
+                спеціальності "Інженерія програмного забезпечення", цікавлюся
+                програмуванням, робототехнікою та автоматизацією.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="education" class="resume-section">
+    <h2>Освіта</h2>
+    <ul>
+        <li>
+            <strong>2024 – наш час</strong> — Бакалавр, спеціальність "Інженерія
+            програмного забезпечення"
+        </li>
+        <li><strong>2013 – 2024</strong> — Загальна середня освіта</li>
+    </ul>
+</section>
+
+<section id="skills" class="resume-section">
+    <h2>Навички</h2>
+    <div class="d-flex flex-wrap gap-2">
+        <span class="badge text-bg-primary">Java</span>
+        <span class="badge text-bg-primary">ООП</span>
+        <span class="badge text-bg-primary">Python</span>
+        <span class="badge text-bg-primary">HTML/CSS</span>
+        <span class="badge text-bg-primary">Git</span>
+        <span class="badge text-bg-primary">Робототехніка</span>
+    </div>
+</section>
+
+<section id="technologies" class="resume-section">
+    <h2>Технології</h2>
+    <ul>
+        <li>Flask, Jinja2</li>
+        <li>Bootstrap 5</li>
+        <li>SQLite</li>
+    </ul>
+</section>
+
+<section id="projects" class="resume-section">
+    <h2>Досвід роботи (Проєкти)</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Вебсайт-резюме</h5>
+                    <p class="card-text">
+                        Двосторінковий сайт на Flask із шаблонами та статичними
+                        файлами.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

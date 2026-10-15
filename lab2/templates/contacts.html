@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block content %}
+<h1 class="page-title mb-4">{{ title }}</h1>
+
+<section id="contact-info" class="resume-section">
+    <h2>Зв'язок зі мною</h2>
+    <ul class="list-unstyled">
+        <li>
+            Email:
+            <a href="mailto:example@mail.com">oleksandr.kharuk.24@pnu.edu.ua</a>
+        </li>
+        <li>Телефон: +380 XXXXXXXXX</li>
+        <li>
+            GitHub:
+            <a href="https://github.com/Sasha342814" target="_blank"
+                >github.com/Sasha342814</a
+            >
+        </li>
+    </ul>
+</section>
+
+<section id="contact-form" class="resume-section">
+    <h2>Надіслати повідомлення</h2>
+    <form method="post" action="{{ url_for('contacts') }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Ім'я</label>
+            <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+            />
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                required
+            />
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">Повідомлення</label>
+            <textarea
+                class="form-control"
+                id="message"
+                name="message"
+                rows="4"
+                required
+            ></textarea>
+        </div>
+        <button type="submit" class="btn btn-accent">Надіслати</button>
+    </form>
+</section>
+{% endblock %}
