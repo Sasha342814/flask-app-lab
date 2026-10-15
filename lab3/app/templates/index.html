@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="page-title mb-4">{{ title }}</h1>
+
+<section class="resume-section">
+    <h2>Вітаю на сайті!</h2>
+    <p>Це головна сторінка застосунку, структурованого за допомогою Blueprints.</p>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-accent" href="{{ url_for('home') }}">Homepage</a>
+        <a class="btn btn-accent" href="{{ url_for('resume') }}">Резюме</a>
+        <a class="btn btn-accent" href="{{ url_for('users.greetings', name='John', age=30) }}">Users</a>
+        <a class="btn btn-accent" href="{{ url_for('products.product_list') }}">Товари</a>
+    </div>
+</section>
+{% endblock %}
