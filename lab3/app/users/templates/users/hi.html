@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Greeting Page{% endblock %}
+
+{% block head %}
+<style>
+    .side-menu { list-style: none; padding: 0; margin: 0; }
+    .side-menu li a {
+        display: block;
+        padding: .5rem .75rem;
+        border-radius: 6px;
+        color: var(--main-color);
+        text-decoration: none;
+    }
+    .side-menu li a:hover { background: #e9f5f2; color: var(--accent-color); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Vertical navigation (тільки для цієї сторінки) -->
+    <nav class="col-md-3 mb-4">
+        <div class="resume-section">
+            <ul class="side-menu">
+                <li><a href="{{ url_for('main') }}">FlaskApp</a></li>
+                <li><a href="{{ url_for('users.greetings', name='John', age=30) }}">Greet John</a></li>
+                <li><a href="{{ url_for('users.admin') }}">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="col-md-9">
+        <h1 class="display-5">Hello :)</h1>
+        <h2 class="user-name">User: {{ name }}</h2>
+        {% if age %}
+            <p class="age-ok">Age: {{ age }}</p>
+        {% else %}
+            <p class="age-missing">Age: Not provided</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
