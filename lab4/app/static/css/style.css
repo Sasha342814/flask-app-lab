@@ -1,0 +1,8 @@
+.profile-header {
+  background: #0d6efd;
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: .25rem;
+}
+.profile-header .avatar { font-size: 2.5rem; vertical-align: middle; }
+.cookie-value { word-break: break-all; }
