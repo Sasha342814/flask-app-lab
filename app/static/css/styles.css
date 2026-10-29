@@ -1,0 +1,42 @@
+:root {
+    --accent: #0d6efd;
+    --bg: #f5f7fb;
+}
+
+body {
+    background: var(--bg);
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: #222;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+}
+
+section h2 {
+    border-bottom: 3px solid var(--accent);
+    display: inline-block;
+    padding-bottom: 4px;
+    margin-bottom: 1rem;
+}
+
+.profile-photo {
+    max-width: 240px;
+    border: 5px solid var(--accent);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+}
+
+.site-footer {
+    background: #212529;
+    color: #adb5bd;
+}
+
+@media (max-width: 576px) {
+    .page-header h1 { font-size: 1.6rem; }
+}
+
+/* Лаба 3: стилі для users / products */
+.side-menu .list-group-item { border-left: 4px solid transparent; }
+.side-menu .list-group-item:hover { border-left-color: var(--accent); }
+.hi-card { border-left: 6px solid var(--accent); box-shadow: 0 2px 10px rgba(0, 0, 0, .08); }

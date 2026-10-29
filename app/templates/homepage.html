@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center py-4">
+    <h2>Ласкаво просимо!</h2>
+    <p class="lead">Це головна сторінка Flask-застосунку, структурованого за допомогою Blueprints.</p>
+    <a class="btn btn-primary" href="{{ url_for('users.greetings', name='John') }}">Привітання</a>
+    <a class="btn btn-outline-primary" href="{{ url_for('products.products_list') }}">Товари</a>
+</div>
+{% endblock %}
