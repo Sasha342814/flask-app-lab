@@ -1,4 +1,4 @@
-# Лабораторна робота №3 — Blueprints, наслідування шаблонів, unittest
+# Лабораторна робота №4 — request, сесії та кукі
 
 ```
 python -m venv venv && venv\Scripts\activate
@@ -11,3 +11,9 @@ python -m unittest discover tests -v       # тести
 `/products/`, `/products/<id>`.
 
 Git: `git checkout lab2 && git checkout -b lab3`, комміти після кожного завдання, скріни — для звіту.
+
+## Лаба 4
+Вхід: `/users/login` (логін `admin`, пароль `12345` — заглушка у `app/users/views.py`).
+Профіль `/users/profile`: привітання, вихід, керування кукі (додати/видалити/видалити всі), таблиця кукі,
+вибір світлої/темної схеми (зберігається у кукі `theme`). Flash-повідомлення з категоріями — у `base.html`.
+Git: `git checkout lab3 && git checkout -b lab4`.

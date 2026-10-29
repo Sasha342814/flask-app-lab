@@ -24,6 +24,24 @@
                        href="{{ url_for('products.products_list') }}">Товари</a>
                 </li>
             </ul>
+            <ul class="navbar-nav ms-lg-3">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'users.profile' %}active{% endif %}"
+                       href="{{ url_for('users.profile') }}">Профіль</a>
+                </li>
+                {% if session.get('user') %}
+                <li class="nav-item">
+                    <form method="post" action="{{ url_for('users.logout') }}" class="d-inline">
+                        <button class="btn btn-link nav-link" type="submit">Вийти ({{ session['user'] }})</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'users.login' %}active{% endif %}"
+                       href="{{ url_for('users.login') }}">Вхід</a>
+                </li>
+                {% endif %}
+            </ul>
             {% if request.endpoint == 'resume' %}
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="#about">Про себе</a></li>
