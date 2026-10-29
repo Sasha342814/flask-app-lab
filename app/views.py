@@ -1,9 +1,13 @@
-from flask import Flask, render_template
+from flask import render_template
 
-app = Flask(__name__)
+from . import app
 
 
 @app.route('/')
+def home():
+    return render_template('homepage.html', title='Головна')
+
+
 @app.route('/resume')
 def resume():
     return render_template('resume.html', title='Резюме')
@@ -11,9 +15,4 @@ def resume():
 
 @app.route('/contacts', methods=['GET', 'POST'])
 def contacts():
-    # Форма-заглушка: реальної відправки немає
     return render_template('contacts.html', title='Контакти')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

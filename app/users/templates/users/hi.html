@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <aside class="col-md-3 mb-3">
+        <div class="list-group side-menu">
+            <a class="list-group-item list-group-item-action" href="{{ url_for('home') }}">Головна</a>
+            <a class="list-group-item list-group-item-action"
+               href="{{ url_for('users.greetings', name='John', age=25) }}">Привітати John</a>
+            <a class="list-group-item list-group-item-action"
+               href="{{ url_for('users.greetings', name='Anna') }}">Привітати Anna</a>
+            <a class="list-group-item list-group-item-action" href="{{ url_for('users.admin') }}">Адмін (редірект)</a>
+        </div>
+    </aside>
+    <section class="col-md-9">
+        <div class="card hi-card">
+            <div class="card-body">
+                <h2 class="card-title">Привіт, {{ name }}!</h2>
+                {% if age %}
+                <p class="card-text">Ваш вік: <strong>{{ age }}</strong></p>
+                {% else %}
+                <p class="card-text text-muted">Вік не вказано (додайте <code>?age=30</code> до адреси).</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
