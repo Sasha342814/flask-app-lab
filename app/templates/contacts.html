@@ -1,0 +1,63 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row g-4">
+    <section class="col-md-5">
+        <h2>Контактні дані</h2>
+        <ul class="list-unstyled">
+            <li>
+                <strong>Email:</strong>
+                <a href="mailto:example@gmail.com"
+                    >oleksandr.kharuk.24@pnu.edu.ua</a
+                >
+            </li>
+            <li><strong>Телефон:</strong> +380 00 000 00 00</li>
+            <li>
+                <strong>GitHub:</strong>
+                <a
+                    href="https://github.com/Sasha342814"
+                    target="_blank"
+                    rel="noopener"
+                    >github.com/Sasha342814</a
+                >
+            </li>
+            <li><strong>Місто:</strong> Івано-Франківськ</li>
+        </ul>
+    </section>
+
+    <section class="col-md-7">
+        <h2>Написати повідомлення</h2>
+        <form method="post" action="{{ url_for('contacts') }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Ім'я</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    required
+                />
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                />
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Повідомлення</label>
+                <textarea
+                    class="form-control"
+                    id="message"
+                    name="message"
+                    rows="4"
+                    required
+                ></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Надіслати</button>
+        </form>
+    </section>
+</div>
+{% endblock %}
