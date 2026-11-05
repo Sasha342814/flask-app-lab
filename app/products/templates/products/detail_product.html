@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="row g-0">
+        <div class="col-md-5">
+            <img src="{{ image_url(product) }}" class="img-fluid rounded-start w-100" alt="{{ product.name }}">
+        </div>
+        <div class="col-md-7">
+            <div class="card-body">
+                <h2 class="card-title">{{ product.name }}</h2>
+                <p class="text-muted">ID: {{ product.id }} · Категорія: {{ product.category|category_name }}</p>
+                <p class="card-text">{{ product.content }}</p>
+                <p class="fs-4 fw-bold">Ціна: {{ '%.2f'|format(product.price) }} $</p>
+                <p>Кількість: {{ product.quantity }} шт.</p>
+                <p class="text-muted small">Додано: {{ product.created_at|dt }}</p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('products.products_list') }}" class="btn btn-outline-secondary">← До списку</a>
+                    <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-warning">Редагувати</a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Видалити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Підтвердження видалення -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" method="post" action="{{ url_for('products.delete_product', product_id=product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Підтвердження</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+            </div>
+            <div class="modal-body">Ви дійсно хочете видалити товар «{{ product.name }}»?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="submit" class="btn btn-danger">Так, видалити</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

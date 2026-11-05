@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import render_field %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <section class="col-lg-8">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.content, rows=5) }}
+            {{ render_field(form.price) }}
+            {{ render_field(form.category) }}
+            {{ render_field(form.quantity) }}
+
+            {% if product %}
+            <div class="mb-2">
+                <p class="mb-1">Поточне зображення:</p>
+                <img src="{{ image_url(product) }}" alt="{{ product.name }}" class="img-thumbnail" style="max-height:140px">
+                <p class="form-text">Оберіть новий файл, щоб замінити, або залиште поле порожнім.</p>
+            </div>
+            {% endif %}
+            {{ render_field(form.image) }}
+
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('products.products_list') }}" class="btn btn-outline-secondary">Скасувати</a>
+        </form>
+    </section>
+</div>
+{% endblock %}

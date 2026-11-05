@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#e9ecef"/>
+  <path d="M120 200l50-60 40 45 30-35 40 50z" fill="#adb5bd"/>
+  <circle cx="150" cy="110" r="18" fill="#adb5bd"/>
+  <text x="200" y="260" font-family="Arial" font-size="20" text-anchor="middle" fill="#6c757d">Немає зображення</text>
+</svg>

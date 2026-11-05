@@ -1,2 +1,5 @@
 Flask
 gunicorn
+Flask-WTF
+email-validator
+tinydb

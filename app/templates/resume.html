@@ -1,0 +1,67 @@
+{% extends 'base.html' %} {% block content %}
+<section id="about" class="mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-md-4 text-center">
+            <img
+                src="{{ url_for('static', filename='images/photo.png') }}"
+                alt="Моє фото"
+                class="img-fluid rounded-circle profile-photo"
+            />
+        </div>
+        <div class="col-md-8">
+            <h2>Про себе</h2>
+            <p>
+                Студент спеціальності «Інженерія програмного забезпечення».
+                Цікавлюся веб-розробкою на Python та Flask, люблю вчитися новому
+                і працювати в команді.
+            </p>
+            <p class="mb-0">
+                Мета: отримати практичний досвід у розробці веб-застосунків.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="education" class="mb-5">
+    <h2>Освіта</h2>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <strong>КНУВС</strong>, бакалавр, Інженерія програмного
+            забезпечення, 2024 – наш час
+        </li>
+        <li class="list-group-item"></li>
+    </ul>
+</section>
+
+<section id="skills" class="mb-5">
+    <h2>Навички</h2>
+    <ul>
+        <li>Командна робота та комунікація</li>
+        <li>Аналітичне мислення</li>
+        <li>Робота з Git та GitHub</li>
+    </ul>
+</section>
+
+<section id="tech" class="mb-5">
+    <h2>Технології</h2>
+    <div class="d-flex flex-wrap gap-2">
+        {% for t in ['Python', 'Flask', 'Jinja2', 'HTML5', 'CSS3', 'Bootstrap',
+        'Git', 'SQL'] %}
+        <span class="badge text-bg-primary fs-6">{{ t }}</span>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="experience" class="mb-5">
+    <h2>Досвід роботи / Проекти</h2>
+    <article class="card mb-3">
+        <div class="card-body">
+            <h3 class="h5 card-title">Веб-сайт «Резюме» (Flask)</h3>
+            <p class="card-text">
+                Навчальний проєкт: маршрутизація, шаблони Jinja2, статичні
+                файли, Bootstrap.
+            </p>
+        </div>
+    </article>
+</section>
+{% endblock %}
