@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Users List ({{ users|length }})</h2>
+{% if users %}
+<table class="table table-sm">
+  <thead style="background:#ffc107"><tr><th>Id</th><th>Username</th><th>Email</th></tr></thead>
+  <tbody>
+  {% for u in users %}<tr><td>{{ u.id }}</td><td>{{ u.username }}</td><td>{{ u.email }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Зареєстрованих користувачів поки немає.</p>
+{% endif %}
+{% endblock %}

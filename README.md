@@ -1,56 +1,39 @@
-# Лабораторна «Побудова зв'язків. Практика» (Flask + SQLAlchemy 2.0)
+# Лабораторна: реєстрація та вхід користувачів. Flask-Login
 
 ## Запуск
 
 ```
-cd lab8
+cd lab9
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python build_lab.py          # міграції (п.1-4, 9) + тестові дані
-python lab_demo.py           # п.7 і п.10 (пости користувачів, теги поста / пости тегу)
-python run.py                # веб-застосунок: http://127.0.0.1:5000
+python setup_db.py        # міграція + БД
+python shell_demo.py      # п.2: хешований пароль (скрін)
+python run.py             # http://127.0.0.1:5000
+pytest -v                 # п.8: тести (скрін)
 ```
 
-## Відповідність пунктам завдання
+## Відповідність завданню
 
 | Пункт | Де |
 |---|---|
-| 1-2 User + міграція | `stages/models_1_user.py`, міграція "Add User" |
-| 3-4 Post.user_id + двосторонній зв'язок | `stages/models_2_relation.py`, міграція "Replace author with user relationship" |
-| 5-6 користувачі, автори постів | `seed.py` |
-| 7 пости user id=2 і id=1 | `python lab_demo.py` (`user.posts`) |
-| 8 список авторів у формі | `app/posts/forms.py` (`author_id`), `routes.py` (`add_post`) |
-| 9 Many-to-many Post-Tag | `app/models.py` (`post_tags`, `Tag`) |
-| 10 append(), теги поста / пости тегу | `python lab_demo.py` |
-| 11 SelectMultipleField тегів | `forms.py` (`tags`), `routes.py` |
-| 12 стилізований вивід тегів | `app/templates/post_detail.html` (`.tag-link`) |
-| 13 оптимізація запитів | `python measure.py plain` / `python measure.py optimized` |
+| 1 Flask-Bcrypt | `app/__init__.py` (`bcrypt = Bcrypt()`, `bcrypt.init_app(app)`) |
+| 2 хеш пароля у shell | `python shell_demo.py` |
+| 3 реєстрація, валідатори | `app/users/forms.py`, `routes.py` (`/register`) |
+| 4 вхід з перевіркою хешу | `routes.py` (`/login`), `models.py` (`hash_password`, `check_password`) |
+| 5 список користувачів | `/users`, `templates/users.html` |
+| 6 Flask-Login | `login_manager`, `user_loader`, `UserMixin`, `login_user`, `logout_user`, `@login_required`, `/account` |
+| 7 редирект авторизованих, меню | `register()`/`login()` + `templates/base.html` |
+| 8 тести | `tests/` |
 
-## Скріни для звіту (пункти 7-13)
+## Скріни для звіту
 
-1. **п.7, 10** - вивід `python lab_demo.py`.
-2. **п.8** - сторінка http://127.0.0.1:5000/add_post з розкритим списком Author.
-3. **п.11** - та сама форма з виділеними кількома тегами; потім сторінка створеного поста.
-4. **п.12** - сторінка поста (`/post/1`) зі стилізованими тегами.
-5. **п.13** - два окремі запуски (окремі процеси = нові ORM-сесії):
-   ```
-   python measure.py plain
-   python measure.py optimized
-   ```
-   Скрін коду, SQL-журналу та підсумку "Кількість SELECT". Занесіть числа в таблицю:
-
-   | Варіант запиту | Кількість дописів | Кількість SELECT |
-   |---|---|---|
-   | Без .options() | (з виводу plain) | (з виводу plain) |
-   | Із joinedload() та selectinload() | (з виводу optimized) | (з виводу optimized) |
-
-   Орієнтир для 5 дописів, 2 авторів: без options приблизно 8 SELECT (1 на дописи + 2 на авторів, бо
-   автор вантажиться один раз завдяки identity map + 5 на теги), з options - 2 SELECT.
-   Записуйте те, що покаже ваш запуск.
-
-## Перенесення у ваш існуючий проєкт
-
-Скопіюйте з `app/models.py` класи `User`, `Tag`, `post_tags` і поля `user_id`, `user`, `tags` у вашу модель
-`Post`, з `app/posts/forms.py` поля `author_id`, `tags`, а з `routes.py` код заповнення `choices`
-та збереження. Далі зробіть `flask db migrate` та `flask db upgrade`.
+1. **П.2** - вивід `python shell_demo.py` (пароль до/після хешування, `check` True/False).
+   Також таблиця `users` у DB Browser for SQLite (`instance/data.sqlite`) із хешем у колонці password.
+2. **П.3** - `/register`: помилка для вже існуючого email/username та успішна реєстрація (flash).
+3. **П.4, 6** - форма входу, потім сторінка `/account` з даними користувача, кнопка Logout.
+4. **П.5** - `/users` зі списком і кількістю (потрібно кілька користувачів: зареєструйте 3-4).
+5. **П.6** - спроба відкрити `/account` без входу: перенаправлення на `/login` з повідомленням
+   "Please log in to access this page."
+6. **П.7** - меню до входу (Login, Register) і після входу (Users, Account, Logout).
+7. **П.8** - вивід `pytest -v` (усі тести passed).
