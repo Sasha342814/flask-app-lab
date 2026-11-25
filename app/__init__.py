@@ -1,49 +1,37 @@
 import os
 
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
-
-from app.config import config
 
 
 class Base(DeclarativeBase):
-    """Базовий клас моделей (стиль SQLAlchemy 2.0)."""
+    # Частина 3: єдиний стиль іменування обмежень
+    metadata = MetaData(naming_convention={
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    })
 
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 
 
-def create_app(config_name=None):
-    """Application factory: створює застосунок залежно від назви конфігурації."""
-    if config_name is None:
-        config_name = os.getenv("FLASK_ENV", "development")
-    cfg = config.get(config_name, config["default"])
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object("config")
 
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object(cfg)
-    if hasattr(cfg, "init_app"):
-        cfg.init_app(app)
-
-    os.makedirs(app.instance_path, exist_ok=True)
+    os.makedirs(os.path.join(app.root_path, "..", "instance"), exist_ok=True)
 
     db.init_app(app)
-    migrate.init_app(app, db)
+    # render_as_batch=True обов'язковий для SQLite (він не вміє ALTER для обмежень)
+    migrate.init_app(app, db, render_as_batch=True)
 
-    # Імпорт моделей, щоб Flask-Migrate їх бачив
-    from app.posts import post_bp
-    from app.posts import models  # noqa: F401
-
-    app.register_blueprint(post_bp)
-
-    @app.route("/")
-    def home():
-        return redirect(url_for("posts.all_posts"))
-
-    @app.errorhandler(404)
-    def not_found(e):
-        return render_template("404.html"), 404
+    from app.products import models  # noqa: F401  (щоб Alembic бачив моделі)
 
     return app

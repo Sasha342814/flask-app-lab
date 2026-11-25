@@ -1,48 +1,48 @@
-# Лабораторна 6: ORM, SQLAlchemy, CRUD (Flask)
+# Лабораторна «Зв'язки. Міграції» (Flask + SQLAlchemy + Flask-Migrate)
 
-## Запуск
+## Запуск (Windows, PowerShell / CMD)
 
-```bash
+```
+cd lab7
 python -m venv .venv
-.venv\Scripts\activate          # Windows  (Linux/macOS: source .venv/bin/activate)
+.venv\Scripts\activate
 pip install -r requirements.txt
+python build_lab.py
+python show_db.py
 ```
 
-## Частина 2: Flask shell (скріншоти для звіту)
+(Linux/macOS: `source .venv/bin/activate` замість `.venv\Scripts\activate`.)
+
+`build_lab.py` з нуля виконує всі частини роботи: створює `migrations/`, робить 5 міграцій
+(Add Product, Add category, Add active column, Add created_at, Insert data), додає дані
+з Частини 1 і 5 та в кінці виводить `flask db check`, `current`, `heads`, `history`.
+
+## Скріни для звіту (тільки остаточні)
+
+1. **Схема таблиць** — DB Browser for SQLite: відкрити `instance/data.sqlite`,
+   вкладка *Database Structure* (розгорнути `products`, `categories`, `alembic_version`).
+   Або: `python show_db.py` — верхня частина виводу.
+2. **Дані в БД** — DB Browser, вкладка *Browse Data*: окремо `products`, `categories`.
+   Або нижня частина виводу `python show_db.py`.
+3. **Історія міграцій** — у терміналі (з активованим venv):
+   ```
+   flask db history
+   ```
+   Має бути 5 ревізій, остання з `(head)`.
+
+## Ручні команди (якщо потрібно показати кожен крок окремо)
 
 ```
-flask shell
->>> from app import db
->>> from app.posts.models import Post
->>> db.create_all()
->>> db.session.add_all([Post(title="Django", content="Framework"), Post(title="Flask", content="Micro"), Post(title="ORM", content="SQLAlchemy")])
->>> db.session.commit()
->>> posts = db.session.scalars(db.select(Post).order_by(Post.title.asc())).all()
->>> posts
->>> post = db.get_or_404(Post, 3)
->>> db.session.delete(post); db.session.commit()
->>> db.session.scalars(db.select(Post)).all()
->>> db.drop_all()
-```
-Після цього видаліть папку `instance/` вручну.
-
-## Частина 3: міграції
-
-```
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
-```
-Потім (поля is_active, author вже є в моделі — щоб показати другу міграцію,
-спершу закоментуйте їх, зробіть першу міграцію, потім розкоментуйте):
-```
-flask db migrate -m "add is_active, author"
-flask db upgrade
+flask db current
+flask db heads
+flask db check
+flask db history
+flask db downgrade     # відкат на одну міграцію
+flask db upgrade       # знову вперед
 ```
 
-## Запуск застосунку і тестів
+Папка `stages/` містить версії моделі `Product/Category` для кожного кроку.
+Файл `app/products/models.py` — остаточна версія.
 
-```
-flask run
-python -m unittest discover -s tests -v
-```
+Щоб почати заново: просто повторно запустіть `python build_lab.py`
+(видаляє `migrations/` та `instance/data.sqlite`).
