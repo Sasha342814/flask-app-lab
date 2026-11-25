@@ -8,7 +8,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-    # Частина 3: єдиний стиль іменування обмежень
     metadata = MetaData(naming_convention={
         "ix": "ix_%(column_0_label)s",
         "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -25,13 +24,17 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object("config")
-
     os.makedirs(os.path.join(app.root_path, "..", "instance"), exist_ok=True)
 
     db.init_app(app)
-    # render_as_batch=True обов'язковий для SQLite (він не вміє ALTER для обмежень)
-    migrate.init_app(app, db, render_as_batch=True)
+    migrate.init_app(app, db, render_as_batch=True)  # batch потрібен для SQLite
 
-    from app.products import models  # noqa: F401  (щоб Alembic бачив моделі)
+    from app import models  # noqa: F401
+
+    # Під час build_lab.py (поетапні міграції) маршрути не потрібні:
+    # моделі на ранніх кроках ще неповні.
+    if os.environ.get("LAB_SKIP_ROUTES") != "1":
+        from app.posts.routes import post_bp
+        app.register_blueprint(post_bp)
 
     return app

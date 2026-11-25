@@ -1,43 +1,45 @@
-"""Додавання даних (аналог команд із flask shell у методичці).
+"""Тестові дані: 2 автори, 3 теги, 5 постів (пункти 5-6, 10, 13)."""
+from datetime import datetime, timedelta
 
-python seed.py part1   -> Частина 1: Pc, MAC (модель ще без категорій)
-python seed.py part5   -> Частина 5: iPhone 15, категорія Laptops, Gaming Laptop
-"""
-import sys
+from werkzeug.security import generate_password_hash
 
 from app import create_app, db
+from app.models import Post, Tag, User
 
 app = create_app()
 
-
-def part1():
-    from app.products.models import Product
-
-    p1 = Product(name="Pc", price=700)
-    p2 = Product(name="MAC", price=500)
-    db.session.add_all([p1, p2])
+with app.app_context():
+    u1 = User(username="user1", email="user1@ex.com", password=generate_password_hash("1111"))
+    u2 = User(username="user2", email="user2@ex.com", password=generate_password_hash("2222"))
+    tech, art, science = Tag(name="Tech"), Tag(name="Art"), Tag(name="Science")
+    db.session.add_all([u1, u2, tech, art, science])
     db.session.commit()
 
-
-def part5():
-    from app.products.models import Category, Product
-
-    iphone = Product(name="iPhone 15", price=999.99)
-    db.session.add(iphone)
+    now = datetime.now()
+    posts = [
+        Post(title="Art of pop culture", content="test content test content", category="art",
+             publish_date=now - timedelta(days=4), user_id=u1.id),
+        Post(title="Python tips", content="test content test content", category="tech",
+             publish_date=now - timedelta(days=3), user_id=u1.id),
+        Post(title="Space news", content="test content test content", category="tech",
+             publish_date=now - timedelta(days=2), user_id=u2.id),
+        Post(title="Digital painting", content="test content test content", category="art",
+             publish_date=now - timedelta(days=1), user_id=u2.id),
+        Post(title="AI and science", content="test content test content", category="tech",
+             publish_date=now, user_id=u1.id),
+    ]
+    db.session.add_all(posts)
     db.session.commit()
 
-    laptops = Category(name="Laptops")
-    db.session.add(laptops)
-    product = Product(name="Gaming Laptop", price=1500.00, active=False, category=laptops)
-    db.session.add(product)
+    # many-to-many: один пост має кілька тегів, один тег належить кільком постам
+    posts[0].tags.append(art)
+    posts[0].tags.append(tech)
+    posts[0].tags.append(science)
+    posts[1].tags.append(tech)
+    posts[2].tags.append(science)
+    posts[2].tags.append(tech)
+    posts[3].tags.append(art)
+    posts[4].tags.append(tech)
+    posts[4].tags.append(science)
     db.session.commit()
-
-    print(product.category.name)
-    print(laptops.products)
-
-
-if __name__ == "__main__":
-    step = sys.argv[1] if len(sys.argv) > 1 else ""
-    with app.app_context():
-        {"part1": part1, "part5": part5}[step]()
-    print(f"seed {step}: OK")
+    print("Seed OK: users=2, tags=3, posts=5")

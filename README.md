@@ -1,48 +1,56 @@
-# Лабораторна «Зв'язки. Міграції» (Flask + SQLAlchemy + Flask-Migrate)
+# Лабораторна «Побудова зв'язків. Практика» (Flask + SQLAlchemy 2.0)
 
-## Запуск (Windows, PowerShell / CMD)
+## Запуск
 
 ```
-cd lab7
+cd lab8
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python build_lab.py
-python show_db.py
+python build_lab.py          # міграції (п.1-4, 9) + тестові дані
+python lab_demo.py           # п.7 і п.10 (пости користувачів, теги поста / пости тегу)
+python run.py                # веб-застосунок: http://127.0.0.1:5000
 ```
 
-(Linux/macOS: `source .venv/bin/activate` замість `.venv\Scripts\activate`.)
+## Відповідність пунктам завдання
 
-`build_lab.py` з нуля виконує всі частини роботи: створює `migrations/`, робить 5 міграцій
-(Add Product, Add category, Add active column, Add created_at, Insert data), додає дані
-з Частини 1 і 5 та в кінці виводить `flask db check`, `current`, `heads`, `history`.
+| Пункт | Де |
+|---|---|
+| 1-2 User + міграція | `stages/models_1_user.py`, міграція "Add User" |
+| 3-4 Post.user_id + двосторонній зв'язок | `stages/models_2_relation.py`, міграція "Replace author with user relationship" |
+| 5-6 користувачі, автори постів | `seed.py` |
+| 7 пости user id=2 і id=1 | `python lab_demo.py` (`user.posts`) |
+| 8 список авторів у формі | `app/posts/forms.py` (`author_id`), `routes.py` (`add_post`) |
+| 9 Many-to-many Post-Tag | `app/models.py` (`post_tags`, `Tag`) |
+| 10 append(), теги поста / пости тегу | `python lab_demo.py` |
+| 11 SelectMultipleField тегів | `forms.py` (`tags`), `routes.py` |
+| 12 стилізований вивід тегів | `app/templates/post_detail.html` (`.tag-link`) |
+| 13 оптимізація запитів | `python measure.py plain` / `python measure.py optimized` |
 
-## Скріни для звіту (тільки остаточні)
+## Скріни для звіту (пункти 7-13)
 
-1. **Схема таблиць** — DB Browser for SQLite: відкрити `instance/data.sqlite`,
-   вкладка *Database Structure* (розгорнути `products`, `categories`, `alembic_version`).
-   Або: `python show_db.py` — верхня частина виводу.
-2. **Дані в БД** — DB Browser, вкладка *Browse Data*: окремо `products`, `categories`.
-   Або нижня частина виводу `python show_db.py`.
-3. **Історія міграцій** — у терміналі (з активованим venv):
+1. **п.7, 10** - вивід `python lab_demo.py`.
+2. **п.8** - сторінка http://127.0.0.1:5000/add_post з розкритим списком Author.
+3. **п.11** - та сама форма з виділеними кількома тегами; потім сторінка створеного поста.
+4. **п.12** - сторінка поста (`/post/1`) зі стилізованими тегами.
+5. **п.13** - два окремі запуски (окремі процеси = нові ORM-сесії):
    ```
-   flask db history
+   python measure.py plain
+   python measure.py optimized
    ```
-   Має бути 5 ревізій, остання з `(head)`.
+   Скрін коду, SQL-журналу та підсумку "Кількість SELECT". Занесіть числа в таблицю:
 
-## Ручні команди (якщо потрібно показати кожен крок окремо)
+   | Варіант запиту | Кількість дописів | Кількість SELECT |
+   |---|---|---|
+   | Без .options() | (з виводу plain) | (з виводу plain) |
+   | Із joinedload() та selectinload() | (з виводу optimized) | (з виводу optimized) |
 
-```
-flask db current
-flask db heads
-flask db check
-flask db history
-flask db downgrade     # відкат на одну міграцію
-flask db upgrade       # знову вперед
-```
+   Орієнтир для 5 дописів, 2 авторів: без options приблизно 8 SELECT (1 на дописи + 2 на авторів, бо
+   автор вантажиться один раз завдяки identity map + 5 на теги), з options - 2 SELECT.
+   Записуйте те, що покаже ваш запуск.
 
-Папка `stages/` містить версії моделі `Product/Category` для кожного кроку.
-Файл `app/products/models.py` — остаточна версія.
+## Перенесення у ваш існуючий проєкт
 
-Щоб почати заново: просто повторно запустіть `python build_lab.py`
-(видаляє `migrations/` та `instance/data.sqlite`).
+Скопіюйте з `app/models.py` класи `User`, `Tag`, `post_tags` і поля `user_id`, `user`, `tags` у вашу модель
+`Post`, з `app/posts/forms.py` поля `author_id`, `tags`, а з `routes.py` код заповнення `choices`
+та збереження. Далі зробіть `flask db migrate` та `flask db upgrade`.

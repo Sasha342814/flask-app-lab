@@ -1,153 +1,60 @@
-"""Автоматично виконує всю лабораторну: усі міграції від нуля.
+"""Виконує міграції від нуля (4 кроки) і заповнює БД.
 
-Запуск (з активованим venv, з кореня проєкту):
-    python build_lab.py
-
-УВАГА: видаляє папку migrations та базу instance/data.sqlite і створює їх заново.
+python build_lab.py     (venv активовано, з кореня проєкту)
+УВАГА: видаляє migrations/ та instance/data.sqlite.
 """
-import glob
 import os
-import re
 import shutil
 import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-MODELS = os.path.join(ROOT, "app", "products", "models.py")
-STAGES = os.path.join(ROOT, "stages")
-
-ENV = dict(os.environ, FLASK_APP="run.py")
+MODELS = os.path.join(ROOT, "app", "models.py")
+STAGES_DATA = {'models_0_post.py': 'from datetime import datetime\n\nfrom sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text\nfrom sqlalchemy.orm import Mapped, mapped_column, relationship\n\nfrom app import db\n\n\nclass Post(db.Model):\n    __tablename__ = "posts"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    title: Mapped[str] = mapped_column(String(200), nullable=False)\n    content: Mapped[str] = mapped_column(Text, nullable=False)\n    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)\n    publish_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)\n    category: Mapped[str] = mapped_column(String(50), nullable=False)\n    author: Mapped[str] = mapped_column(String(64), nullable=True)\n\n    def __repr__(self) -> str:\n        return f"Post({self.title!r})"\n', 'models_1_user.py': 'from datetime import datetime\n\nfrom sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text\nfrom sqlalchemy.orm import Mapped, mapped_column, relationship\n\nfrom app import db\n\n\nclass User(db.Model):\n    __tablename__ = "users"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)\n    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)\n    password: Mapped[str] = mapped_column(String(255), nullable=False)\n\n    def __repr__(self) -> str:\n        return f"User({self.email!r})"\n\n\nclass Post(db.Model):\n    __tablename__ = "posts"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    title: Mapped[str] = mapped_column(String(200), nullable=False)\n    content: Mapped[str] = mapped_column(Text, nullable=False)\n    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)\n    publish_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)\n    category: Mapped[str] = mapped_column(String(50), nullable=False)\n    author: Mapped[str] = mapped_column(String(64), nullable=True)\n\n    def __repr__(self) -> str:\n        return f"Post({self.title!r})"\n', 'models_2_relation.py': 'from datetime import datetime\n\nfrom sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text\nfrom sqlalchemy.orm import Mapped, mapped_column, relationship\n\nfrom app import db\n\n\nclass User(db.Model):\n    __tablename__ = "users"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)\n    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)\n    password: Mapped[str] = mapped_column(String(255), nullable=False)\n\n    posts: Mapped[list["Post"]] = relationship(\n        back_populates="user", cascade="all, delete-orphan"\n    )\n\n    def __repr__(self) -> str:\n        return f"User({self.email!r})"\n\n\nclass Post(db.Model):\n    __tablename__ = "posts"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    title: Mapped[str] = mapped_column(String(200), nullable=False)\n    content: Mapped[str] = mapped_column(Text, nullable=False)\n    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)\n    publish_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)\n    category: Mapped[str] = mapped_column(String(50), nullable=False)\n\n    # Двосторонній зв\'язок Post <-> User (один користувач -> багато постів)\n    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))\n    user: Mapped["User"] = relationship(back_populates="posts")\n\n    def __repr__(self) -> str:\n        return f"Post({self.title!r})"\n', 'models_3_tags.py': 'from datetime import datetime\n\nfrom sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text\nfrom sqlalchemy.orm import Mapped, mapped_column, relationship\n\nfrom app import db\n\n\n# Асоціативна таблиця для зв\'язку "багато до багатьох"\npost_tags = db.Table(\n    "post_tags",\n    db.Column("post_id", db.Integer, db.ForeignKey("posts.id"), primary_key=True),\n    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True),\n)\n\n\nclass User(db.Model):\n    __tablename__ = "users"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)\n    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)\n    password: Mapped[str] = mapped_column(String(255), nullable=False)\n\n    posts: Mapped[list["Post"]] = relationship(\n        back_populates="user", cascade="all, delete-orphan"\n    )\n\n    def __repr__(self) -> str:\n        return f"User({self.email!r})"\n\n\nclass Post(db.Model):\n    __tablename__ = "posts"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    title: Mapped[str] = mapped_column(String(200), nullable=False)\n    content: Mapped[str] = mapped_column(Text, nullable=False)\n    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)\n    publish_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)\n    category: Mapped[str] = mapped_column(String(50), nullable=False)\n\n    # Двосторонній зв\'язок Post <-> User (один користувач -> багато постів)\n    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))\n    user: Mapped["User"] = relationship(back_populates="posts")\n\n    # Many-to-many з тегами через асоціативну таблицю\n    tags: Mapped[list["Tag"]] = relationship(secondary=post_tags, back_populates="posts")\n\n    def __repr__(self) -> str:\n        return f"Post({self.title!r})"\n\n\nclass Tag(db.Model):\n    __tablename__ = "tags"\n\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)\n\n    posts: Mapped[list["Post"]] = relationship(secondary=post_tags, back_populates="tags")\n\n    def __repr__(self) -> str:\n        return f"Tag({self.name!r})"\n'}
+ENV = dict(os.environ, FLASK_APP="run.py", LAB_SKIP_ROUTES="1")
 
 
 def sh(*args):
     print("\n>", " ".join(args))
     r = subprocess.run([sys.executable, *args], cwd=ROOT, env=ENV)
     if r.returncode != 0:
-        sys.exit(f"Команда завершилась з помилкою ({r.returncode}). Зупинка.")
+        sys.exit(f"Помилка ({r.returncode}). Зупинка.")
 
 
 def flask(*args):
     sh("-m", "flask", *args)
 
 
-def use_stage(name):
+def stage(name):
     print(f"\n=== Модель: {name} ===")
-    shutil.copy(os.path.join(STAGES, name), MODELS)
+    os.makedirs(os.path.dirname(MODELS), exist_ok=True)
+    with open(MODELS, "w", encoding="utf-8") as f:
+        f.write(STAGES_DATA[name])
 
 
-DATA_MIGRATION = '''def upgrade():
-    conn = op.get_bind()
+shutil.rmtree(os.path.join(ROOT, "migrations"), ignore_errors=True)
+db_file = os.path.join(ROOT, "instance", "data.sqlite")
+if os.path.exists(db_file):
+    os.remove(db_file)
 
-    categories_table = table(
-        "categories", column("id", sa.Integer), column("name", sa.String)
-    )
-    products_table = table(
-        "products",
-        column("name", sa.String),
-        column("price", sa.Float),
-        column("active", sa.Boolean),
-        column("category_id", sa.Integer),
-    )
+stage("models_0_post.py")                       # початковий Post (поле author - рядок)
+flask("db", "init")
+flask("db", "migrate", "-m", "Add Post")
+flask("db", "upgrade")
 
-    # --- Вставка категорій ---
-    op.bulk_insert(categories_table, [
-        {"name": "Electronics"},
-        {"name": "Books"},
-        {"name": "Clothing"},
-    ])
+stage("models_1_user.py")                       # п.1-2: User
+flask("db", "migrate", "-m", "Add User")
+flask("db", "upgrade")
 
-    # id категорії шукаємо за назвою (id=1 вже зайнятий категорією Laptops)
-    def cid(name):
-        return conn.execute(
-            sa.text("SELECT id FROM categories WHERE name = :n"), {"n": name}
-        ).scalar()
+stage("models_2_relation.py")                   # п.3-4: author -> user_id + зв'язок
+flask("db", "migrate", "-m", "Replace author with user relationship")
+flask("db", "upgrade")
 
-    # --- Вставка продуктів ---
-    op.bulk_insert(products_table, [
-        {"name": "Laptop", "price": 1200.0, "active": True, "category_id": cid("Electronics")},
-        {"name": "Smartphone", "price": 800.0, "active": True, "category_id": cid("Electronics")},
-        {"name": "Novel", "price": 20.0, "active": True, "category_id": cid("Books")},
-        {"name": "T-Shirt", "price": 25.0, "active": False, "category_id": cid("Clothing")},
-    ])
+stage("models_3_tags.py")                       # п.9: Tag + post_tags
+flask("db", "migrate", "-m", "Add Tag and post_tags many-to-many")
+flask("db", "upgrade")
 
-
-def downgrade():
-    # Видаляємо тільки вставлені продукти та категорії
-    op.execute("""
-        DELETE FROM products
-        WHERE name IN ('Laptop', 'Smartphone', 'Novel', 'T-Shirt');
-    """)
-    op.execute("""
-        DELETE FROM categories
-        WHERE name IN ('Electronics', 'Books', 'Clothing');
-    """)
-'''
-
-
-def write_data_migration():
-    files = glob.glob(os.path.join(ROOT, "migrations", "versions", "*insert_data_into_products_table.py"))
-    if not files:
-        sys.exit("Не знайдено файл міграції з даними")
-    path = files[0]
-    with open(path, encoding="utf-8") as f:
-        src = f.read()
-    head = src.split("def upgrade():")[0]
-    if "from sqlalchemy.sql import table, column" not in head:
-        head = head.replace(
-            "import sqlalchemy as sa\n",
-            "import sqlalchemy as sa\nfrom sqlalchemy.sql import table, column\n",
-            1,
-        )
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(head + DATA_MIGRATION)
-    print("Файл міграції з даними заповнено:", os.path.basename(path))
-
-
-def main():
-    # 0. чистий старт
-    shutil.rmtree(os.path.join(ROOT, "migrations"), ignore_errors=True)
-    db_file = os.path.join(ROOT, "instance", "data.sqlite")
-    if os.path.exists(db_file):
-        os.remove(db_file)
-
-    # Частина 1
-    use_stage("models_1_product.py")
-    flask("db", "init")
-    flask("db", "migrate", "-m", "Add Product")
-    flask("db", "upgrade")
-    sh("seed.py", "part1")
-
-    # Частини 2-3 (naming_convention вже є в app/__init__.py)
-    use_stage("models_2_category.py")
-    flask("db", "migrate", "-m", "Add category")
-    flask("db", "upgrade")
-
-    # Частина 4
-    use_stage("models_3_active.py")
-    flask("db", "migrate", "-m", "Add active column to products")
-    flask("db", "upgrade")
-
-    # Частина 6
-    use_stage("models_4_created_at.py")
-    flask("db", "migrate", "-m", "Add created_at with server_default")
-    flask("db", "upgrade")
-
-    # Частина 5
-    sh("seed.py", "part5")
-
-    # Частина 7
-    flask("db", "revision", "-m", "Insert data into products table")
-    write_data_migration()
-    flask("db", "upgrade")
-
-    # Перевірки
-    flask("db", "check")
-    flask("db", "current")
-    flask("db", "heads")
-    flask("db", "history")
-
-    print("\nГОТОВО. Тепер: python show_db.py  (схема + дані для скрінів)")
-
-
-if __name__ == "__main__":
-    main()
+sh("seed.py")
+flask("db", "check")
+flask("db", "history")
+print("\nГОТОВО. Далі: python lab_demo.py ; python measure.py plain ; python measure.py optimized ; python run.py")
